@@ -7,12 +7,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.talend</groupId>
-  <artifactId>jsonparser-component</artifactId>
+  <artifactId>parser-component</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Json Parser Component</name>
-  <description>Json Parser component for Talend Cloud applications</description>
+  <name>Parser Component</name>
+  <description>Parser component for Talend Cloud applications</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
