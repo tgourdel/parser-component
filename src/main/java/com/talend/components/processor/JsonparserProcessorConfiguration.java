@@ -15,11 +15,12 @@ import static com.talend.components.service.JsonparserComponentService.INCOMING_
 @GridLayout({
         @GridLayout.Row({ "field"})
 })
-@Documentation("TODO fill the documentation for this configuration")
+@Documentation("Parses data")
 public class JsonparserProcessorConfiguration implements Serializable {
 
     @Option
     @Required
+    @Suggestable(INCOMING_PATHS_DYNAMIC)
     @Documentation("The input field name")
     private String field = "";
 
