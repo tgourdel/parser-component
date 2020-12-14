@@ -24,8 +24,8 @@ import com.talend.components.service.ParserComponentService;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(value = CUSTOM, custom = "jsonparser") // icon is located at src/main/resources/icons/jsonparser.svg
-@Processor(name = "jsonparser")
+@Icon(value = CUSTOM, custom = "parser") // icon is located at src/main/resources/icons/parser.svg
+@Processor(name = "parser")
 @Documentation("Parses data")
 public class ParserProcessor implements Serializable {
     private final ParserProcessorConfiguration configuration;
