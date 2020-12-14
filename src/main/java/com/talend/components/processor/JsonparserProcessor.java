@@ -30,7 +30,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 public class JsonparserProcessor implements Serializable {
     private final JsonparserProcessorConfiguration configuration;
     private final JsonparserComponentService service;
-    private final RecordBuilderFactory builderFactory;
+    private RecordBuilderFactory builderFactory = null;
 
     public JsonparserProcessor(@Option("configuration") final JsonparserProcessorConfiguration configuration,
                           final JsonparserComponentService service,
@@ -47,17 +47,12 @@ public class JsonparserProcessor implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
-    @BeforeGroup
-    public void beforeGroup() {
-        // if the environment supports chunking this method is called at the beginning if a chunk
-        // it can be used to start a local transaction specific to the backend you use
-        // Note: if you don't need it you can delete it
-    }
-
     @ElementListener
     public void onNext(
             @Input final Record defaultInput,
             @Output final OutputEmitter<Record> defaultOutput) {
+
+        // this.outputEmitter = defaultOutput;
 
         String name = defaultInput.getString("name");
         // this is the method allowing you to handle the input(s) and emit the output(s)
@@ -66,12 +61,6 @@ public class JsonparserProcessor implements Serializable {
         Record.Builder b = builderFactory.newRecordBuilder();
         b = b.withString("newrecord", name);
         defaultOutput.emit(b.build());
-    }
-
-    @AfterGroup
-    public void afterGroup() {
-        // symmetric method of the beforeGroup() executed after the chunk processing
-        // Note: if you don't need it you can delete it
     }
 
     @PreDestroy
