@@ -27,7 +27,7 @@ public class JsonToRecord {
     private final NumberOption numberOption;
 
     public JsonToRecord(final RecordBuilderFactory factory) {
-        this(factory, false);
+        this(factory, true);
     }
 
     public JsonToRecord(RecordBuilderFactory factory, boolean forceNumberAsDouble) {

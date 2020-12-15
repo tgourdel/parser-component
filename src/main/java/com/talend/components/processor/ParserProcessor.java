@@ -47,7 +47,7 @@ public class ParserProcessor implements Serializable {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;
-        this.jsonToRecord = new JsonToRecord(builderFactory, false);
+        this.jsonToRecord = new JsonToRecord(builderFactory, true);
     }
 
     @PostConstruct
