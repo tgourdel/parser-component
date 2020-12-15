@@ -69,10 +69,9 @@ public class ParserProcessor implements Serializable {
                 case JSON:
                     JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
                     JsonObject jsonObjectRead = jsonReader.readObject();
-                    JsonObject jsonObject = Json.createObjectBuilder().add(field, jsonObjectRead.toString()).build();
                     jsonReader.close();
 
-                    Record record = jsonToRecord.toRecord(jsonObject);
+                    Record record = jsonToRecord.toRecord(jsonObjectRead);
 
                     defaultOutput.emit(record);
                     break;
