@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.*;
 
+import com.talend.components.ParserProcessorRuntimeException;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -52,12 +53,24 @@ public class ParserProcessor implements Serializable {
             @Input final Record defaultInput,
             @Output final OutputEmitter<JsonObject> defaultOutput) {
 
-        String name = defaultInput.getString(this.configuration.getField());
-        JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(this.configuration.getField())));
-        JsonObject object = jsonReader.readObject();
-        jsonReader.close();
+        if(this.configuration.getField() != null) {
 
-        defaultOutput.emit(object);
+            switch (this.configuration.getFormat()) {
+                // Personal
+                case JSON:
+                    String name = defaultInput.getString(this.configuration.getField());
+                    JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(this.configuration.getField())));
+                    JsonObject object = jsonReader.readObject();
+                    jsonReader.close();
+
+                    defaultOutput.emit(object);
+                    break;
+                default:
+                    throw new ParserProcessorRuntimeException("Format is not available.");
+            }
+
+
+        }
     }
 
     @PreDestroy

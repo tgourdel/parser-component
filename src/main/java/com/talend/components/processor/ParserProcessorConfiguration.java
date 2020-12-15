@@ -15,7 +15,8 @@ import static com.talend.components.service.ParserComponentService.INCOMING_PATH
 
 @Data
 @GridLayout({
-        @GridLayout.Row({ "field"})
+        @GridLayout.Row({ "field"}),
+        @GridLayout.Row({ "format"})
 })
 @Documentation("Parses data")
 public class ParserProcessorConfiguration implements Serializable {
