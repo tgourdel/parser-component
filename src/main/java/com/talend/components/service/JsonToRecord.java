@@ -1,5 +1,6 @@
 package com.talend.components.service;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -20,7 +21,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-public class JsonToRecord {
+public class JsonToRecord implements Serializable {
 
     private final RecordBuilderFactory factory;
 
