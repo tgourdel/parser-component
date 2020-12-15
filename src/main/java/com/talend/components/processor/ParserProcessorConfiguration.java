@@ -4,6 +4,7 @@ import com.talend.components.service.Format;
 import lombok.Data;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -15,10 +16,10 @@ import static com.talend.components.service.ParserComponentService.INCOMING_PATH
 
 @Data
 @GridLayout({
-        @GridLayout.Row({ "field"}),
-        @GridLayout.Row({ "format"})
+        @GridLayout.Row({ "format"}),
+        @GridLayout.Row({ "field"})
 })
-@Documentation("Parses data")
+@Documentation("JSON or XML parser on input fields.")
 public class ParserProcessorConfiguration implements Serializable {
 
     @Option
@@ -32,5 +33,7 @@ public class ParserProcessorConfiguration implements Serializable {
     @DefaultValue("JSON")
     @Documentation("types")
     private Format format;
+
+
 
 }

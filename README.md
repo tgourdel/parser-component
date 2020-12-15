@@ -16,3 +16,5 @@ ___
 </div>
 
 ## Description
+
+Simple JSON and XML parser component for Talend Pipeline Designer.

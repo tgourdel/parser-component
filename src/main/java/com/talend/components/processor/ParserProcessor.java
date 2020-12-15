@@ -8,8 +8,13 @@ import java.io.StringReader;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.*;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import com.talend.components.service.JsonToRecord;
 
 import com.talend.components.ParserProcessorRuntimeException;
+import com.talend.components.service.Format;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -27,49 +32,59 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(value = CUSTOM, custom = "parser") // icon is located at src/main/resources/icons/parser.svg
 @Processor(name = "parser")
-@Documentation("Parses data")
+@Documentation("Performs JSON or XML parsing on input fields.")
 public class ParserProcessor implements Serializable {
     private final ParserProcessorConfiguration configuration;
     private final ParserComponentService service;
-    private JsonBuilderFactory builderFactory;
+    private RecordBuilderFactory builderFactory;
+    final JsonToRecord jsonToRecord;
+    private String field;
+    private Format format;
 
     public ParserProcessor(@Option("configuration") final ParserProcessorConfiguration configuration,
                            final ParserComponentService service,
-                           final JsonBuilderFactory builderFactory) {
+                           final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;
+        this.jsonToRecord = new JsonToRecord(builderFactory, false);
     }
 
     @PostConstruct
     public void init() {
-        // this method will be executed once for the whole component execution,
-        // this is where you can establish a connection for instance
-        // Note: if you don't need it you can delete it
+        // get field name
+        field = this.configuration.getField();
+        format = this.configuration.getFormat();
+
     }
 
     @ElementListener
     public void onNext(
             @Input final Record defaultInput,
-            @Output final OutputEmitter<JsonObject> defaultOutput) {
+            @Output final OutputEmitter<Record> defaultOutput) {
 
-        if(this.configuration.getField() != null) {
+        if(field != null) {
+            switch (format) {
 
-            switch (this.configuration.getFormat()) {
-                // Personal
                 case JSON:
-                    String name = defaultInput.getString(this.configuration.getField());
-                    JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(this.configuration.getField())));
-                    JsonObject object = jsonReader.readObject();
+                    JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
+                    JsonObject jsonObjectRead = jsonReader.readObject();
+                    JsonObject jsonObject = Json.createObjectBuilder().add(field, jsonObjectRead.toString()).build();
                     jsonReader.close();
 
-                    defaultOutput.emit(object);
+                    Record record = jsonToRecord.toRecord(jsonObject);
+
+                    defaultOutput.emit(record);
+                    break;
+
+                case XML:
+
+
+
                     break;
                 default:
                     throw new ParserProcessorRuntimeException("Format is not available.");
             }
-
-
         }
     }
 
