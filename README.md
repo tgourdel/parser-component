@@ -1,5 +1,5 @@
 <h1 align="center">
-  Json Parser
+  Parser Component
 </h1>
 <div align="center">
 
