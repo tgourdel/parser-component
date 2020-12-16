@@ -66,7 +66,7 @@ public class ParserProcessor implements Serializable {
                     JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
                     JsonObject jsonObjectRead = jsonReader.readObject();
                     jsonReader.close();
-                    JsonObject record = builderFactory.createObjectBuilder().add(field, jsonObjectRead.toString()).build();
+                    JsonObject record = builderFactory.createObjectBuilder().add(field, jsonObjectRead).build();
                     defaultOutput.emit(record);
                     break;
                 case XML:
@@ -74,7 +74,6 @@ public class ParserProcessor implements Serializable {
                     // DocumentBuilderFactory factory =
                     // DocumentBuilderFactory.newInstance();
                     // DocumentBuilder builder = factory.newDocumentBuilder();
-
 
                     break;
                 default:

@@ -18,3 +18,6 @@ ___
 ## Description
 
 Simple JSON and XML parser component for Talend Pipeline Designer.
+
+ - For now only JSON is supported.
+ - XML is WIP
