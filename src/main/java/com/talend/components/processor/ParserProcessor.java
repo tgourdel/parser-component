@@ -1,15 +1,19 @@
 package com.talend.components.processor;
 
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import com.talend.components.service.JsonToRecord;
 
 import com.talend.components.ParserProcessorRuntimeException;
 import com.talend.components.service.Format;
@@ -25,6 +29,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
 import com.talend.components.service.ParserComponentService;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
@@ -34,16 +39,18 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 public class ParserProcessor implements Serializable {
     private final ParserProcessorConfiguration configuration;
     private final ParserComponentService service;
-    private JsonBuilderFactory builderFactory;
+    private RecordBuilderFactory builderFactory;
+    final JsonToRecord jsonToRecord;
     private String field;
     private Format format;
 
     public ParserProcessor(@Option("configuration") final ParserProcessorConfiguration configuration,
                            final ParserComponentService service,
-                           final JsonBuilderFactory builderFactory) {
+                           final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;
+        this.jsonToRecord = new JsonToRecord(builderFactory, false);
     }
 
     @PostConstruct
@@ -57,23 +64,55 @@ public class ParserProcessor implements Serializable {
     @ElementListener
     public void onNext(
             @Input final Record defaultInput,
-            @Output final OutputEmitter<JsonObject> defaultOutput) {
+            @Output final OutputEmitter<Record> defaultOutput) {
 
-        if(defaultInput.getString(field) != null) {
+        if(field != null) {
             switch (format) {
 
                 case JSON:
                     JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
                     JsonObject jsonObjectRead = jsonReader.readObject();
                     jsonReader.close();
-                    JsonObject record = builderFactory.createObjectBuilder().add(field, jsonObjectRead).build();
-                    defaultOutput.emit(record);
-                    break;
-                case XML:
 
-                    // DocumentBuilderFactory factory =
-                    // DocumentBuilderFactory.newInstance();
-                    // DocumentBuilder builder = factory.newDocumentBuilder();
+                    Record.Builder builder = builderFactory.newRecordBuilder();
+
+                    final Schema schema = defaultInput.getSchema();
+
+                    for (Schema.Entry entry : schema.getEntries()) {
+                       if(entry.getName() == field) {
+                           builder.withRecord(entry.getName(), jsonToRecord.toRecord(jsonObjectRead));
+                       } else {
+                           switch (entry.getType()) {
+                               case DATETIME:
+                                   builder.withDateTime(entry.getName(), defaultInput.getDateTime(entry.getName()));
+                                   break;
+                               case BOOLEAN:
+                                   builder.withBoolean(entry.getName(), defaultInput.getBoolean(entry.getName()));
+                                   break;
+                               case DOUBLE:
+                                   builder.withDouble(entry.getName(), defaultInput.getDouble(entry.getName()));
+                                   break;
+                               case INT:
+                                   builder.withInt(entry.getName(), defaultInput.getInt(entry.getName()));
+                                   break;
+                               case LONG:
+                                   builder.withLong(entry.getName(), defaultInput.getLong(entry.getName()));
+                                   break;
+                               case FLOAT:
+                                   builder.withFloat(entry.getName(), defaultInput.getFloat(entry.getName()));
+                                   break;
+                               case STRING:
+                                   builder.withString(entry.getName(), defaultInput.getString(entry.getName()));
+                                   break;
+                               case BYTES:
+                                   builder.withBytes(entry.getName(), defaultInput.getBytes(entry.getName()));
+                                   break;
+                           }
+                       }
+                    }
+
+                    Record record = builder.build();
+                    defaultOutput.emit(record);
 
                     break;
                 default:
