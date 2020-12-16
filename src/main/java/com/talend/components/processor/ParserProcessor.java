@@ -8,6 +8,8 @@ import java.io.StringReader;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.*;
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
 
 import com.talend.components.ParserProcessorRuntimeException;
 import com.talend.components.service.Format;
@@ -23,6 +25,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
 import com.talend.components.service.ParserComponentService;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(value = CUSTOM, custom = "parser") // icon is located at src/main/resources/icons/parser.svg
@@ -48,6 +51,7 @@ public class ParserProcessor implements Serializable {
         // get field name
         field = this.configuration.getField();
         format = this.configuration.getFormat();
+
     }
 
     @ElementListener
@@ -55,21 +59,21 @@ public class ParserProcessor implements Serializable {
             @Input final Record defaultInput,
             @Output final OutputEmitter<JsonObject> defaultOutput) {
 
-        if(field != null) {
+        if(defaultInput.getString(field) != null) {
             switch (format) {
 
                 case JSON:
-                    //JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
-                    //JsonObject jsonObjectRead = jsonReader.readObject();
-                    //jsonReader.close();
-
-                    JsonObject record = builderFactory.createObjectBuilder().add(field, defaultInput.getString(field)).build();
-
+                    JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
+                    JsonObject jsonObjectRead = jsonReader.readObject();
+                    jsonReader.close();
+                    JsonObject record = builderFactory.createObjectBuilder().add(field, jsonObjectRead.toString()).build();
                     defaultOutput.emit(record);
                     break;
-
                 case XML:
 
+                    // DocumentBuilderFactory factory =
+                    // DocumentBuilderFactory.newInstance();
+                    // DocumentBuilder builder = factory.newDocumentBuilder();
 
 
                     break;
