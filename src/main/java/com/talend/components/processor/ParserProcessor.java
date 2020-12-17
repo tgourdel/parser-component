@@ -146,7 +146,8 @@ public class ParserProcessor implements Serializable {
             // Emit record built earlier
             Record record = builder.build();
             defaultOutput.emit(record);
-
+        } else {
+            defaultOutput.emit(null);
         }
     }
 
