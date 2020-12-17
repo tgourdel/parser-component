@@ -1,17 +1,13 @@
 package com.talend.components.processor;
 
-import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.*;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -31,13 +27,11 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import com.talend.components.service.ParserComponentService;
+import com.talend.components.service.ParserProcessorService;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 
@@ -47,7 +41,7 @@ import org.xml.sax.InputSource;
 @Documentation("Performs JSON or XML parsing on input fields.")
 public class ParserProcessor implements Serializable {
     private final ParserProcessorConfiguration configuration;
-    private final ParserComponentService service;
+    private final ParserProcessorService service;
     private RecordBuilderFactory builderFactory;
     final JsonToRecord jsonToRecord;
     final XmlToRecord xmlToRecord;
@@ -55,7 +49,7 @@ public class ParserProcessor implements Serializable {
     private Format format;
 
     public ParserProcessor(@Option("configuration") final ParserProcessorConfiguration configuration,
-                           final ParserComponentService service,
+                           final ParserProcessorService service,
                            final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
@@ -76,14 +70,19 @@ public class ParserProcessor implements Serializable {
             @Input final Record defaultInput,
             @Output final OutputEmitter<Record> defaultOutput) {
 
-        if(field != null) {
+        System.out.println(("====> field : " + field));
+
+        if(field != "") {
+
+            // Used to read JSON or XML
+            StringReader fieldReader = new StringReader(defaultInput.getString(field));
 
             // Record Initialization
             Record.Builder builder = builderFactory.newRecordBuilder();
 
             switch (format) {
                 case JSON:
-                    JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
+                    JsonReader jsonReader = Json.createReader(fieldReader);
                     JsonObject jsonObjectRead = jsonReader.readObject();
                     jsonReader.close();
 
@@ -131,9 +130,9 @@ public class ParserProcessor implements Serializable {
                     DocumentBuilder Xmlbuilder;
                     try {
                         Xmlbuilder = factory.newDocumentBuilder();
-                        Document document = Xmlbuilder.parse(new InputSource(new StringReader(defaultInput.getString(field))));
+                        Document document = Xmlbuilder.parse(new InputSource(fieldReader));
                         document.getDocumentElement().normalize();
-                        builder.withRecord("root", xmlToRecord.toRecord(document));
+                        builder.withRecord(field, xmlToRecord.toRecord(document));
 
                     } catch (Exception e) {
                         throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
@@ -146,8 +145,6 @@ public class ParserProcessor implements Serializable {
             // Emit record built earlier
             Record record = builder.build();
             defaultOutput.emit(record);
-        } else {
-            defaultOutput.emit(null);
         }
     }
 

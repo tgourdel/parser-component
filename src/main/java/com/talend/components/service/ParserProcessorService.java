@@ -9,7 +9,7 @@ import org.talend.sdk.component.api.service.completion.Values;
 import java.util.Collections;
 
 @Service
-public class ParserComponentService {
+public class ParserProcessorService {
 
     public static final String INCOMING_PATHS_DYNAMIC = "INCOMING_PATHS_DYNAMIC";
 
