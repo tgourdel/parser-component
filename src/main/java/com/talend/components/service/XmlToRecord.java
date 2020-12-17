@@ -11,10 +11,7 @@ import javax.xml.xpath.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -42,11 +39,31 @@ public class XmlToRecord implements Serializable {
             System.out.println("====> Node has childrens!! ");
             NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
+            ArrayList<String> listNodes = new ArrayList<String>();
+
+            for(int i=0; i < elements.getLength(); ++i) {
+                listNodes.add(elements.item(i).getNodeName());
+            }
+
+            List<Object> items = new ArrayList<Object>();
+            String listname = "";
+
             for(int i=0; i < elements.getLength(); ++i) {
                 System.out.println("====> Node num " + i);
                 System.out.println("====> Name " + elements.item(i).getNodeName());
-                builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
+                if(listNodes.indexOf(elements.item(i).getNodeName()) > 1)  {
+
+                    items.add(toRecord(elements.item(i)));
+                } else {
+                    builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
+                }
             }
+            if(!listname.equals("")) {
+                builder.withArray(factory.newEntryBuilder().withName(listname).withType(Schema.Type.ARRAY)
+                        .build(), items);
+            }
+
+
         }
         else if (node.getNodeType() == Node.TEXT_NODE) {
             System.out.println("====> Node is text ");
