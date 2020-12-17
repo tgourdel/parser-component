@@ -12,11 +12,14 @@ import javax.annotation.PreDestroy;
 import javax.json.*;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.talend.components.service.JsonToRecord;
 
 import com.talend.components.ParserProcessorRuntimeException;
 import com.talend.components.service.Format;
+import com.talend.components.service.XmlToRecord;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -32,6 +35,12 @@ import com.talend.components.service.ParserComponentService;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(value = CUSTOM, custom = "parser") // icon is located at src/main/resources/icons/parser.svg
 @Processor(name = "parser")
@@ -41,6 +50,7 @@ public class ParserProcessor implements Serializable {
     private final ParserComponentService service;
     private RecordBuilderFactory builderFactory;
     final JsonToRecord jsonToRecord;
+    final XmlToRecord xmlToRecord;
     private String field;
     private Format format;
 
@@ -51,6 +61,7 @@ public class ParserProcessor implements Serializable {
         this.service = service;
         this.builderFactory = builderFactory;
         this.jsonToRecord = new JsonToRecord(builderFactory, false);
+        this.xmlToRecord = new XmlToRecord(builderFactory);
     }
 
     @PostConstruct
@@ -58,7 +69,6 @@ public class ParserProcessor implements Serializable {
         // get field name
         field = this.configuration.getField();
         format = this.configuration.getFormat();
-
     }
 
     @ElementListener
@@ -67,14 +77,15 @@ public class ParserProcessor implements Serializable {
             @Output final OutputEmitter<Record> defaultOutput) {
 
         if(field != null) {
-            switch (format) {
 
+            // Record Initialization
+            Record.Builder builder = builderFactory.newRecordBuilder();
+
+            switch (format) {
                 case JSON:
                     JsonReader jsonReader = Json.createReader(new StringReader(defaultInput.getString(field)));
                     JsonObject jsonObjectRead = jsonReader.readObject();
                     jsonReader.close();
-
-                    Record.Builder builder = builderFactory.newRecordBuilder();
 
                     final Schema schema = defaultInput.getSchema();
 
@@ -110,14 +121,30 @@ public class ParserProcessor implements Serializable {
                            }
                        }
                     }
-
-                    Record record = builder.build();
-                    defaultOutput.emit(record);
-
                     break;
+                case XML:
+                    String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b></b><c></c></a>";
+
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder Xmlbuilder;
+                    try {
+                        Xmlbuilder = factory.newDocumentBuilder();
+                        Document document = Xmlbuilder.parse(new InputSource(new StringReader(xmlString)));
+
+                        builder.withRecord("root", xmlToRecord.toRecord(document));
+
+                    } catch (Exception e) {
+                        throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
+                    }
+
                 default:
                     throw new ParserProcessorRuntimeException("Format is not available.");
             }
+
+            // Emit record built earlier
+            Record record = builder.build();
+            defaultOutput.emit(record);
+
         }
     }
 
@@ -127,4 +154,6 @@ public class ParserProcessor implements Serializable {
         // release potential connections you created or data you cached
         // Note: if you don't need it you can delete it
     }
+
+
 }
