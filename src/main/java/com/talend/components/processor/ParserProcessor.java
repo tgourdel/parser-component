@@ -91,8 +91,8 @@ public class ParserProcessor implements Serializable {
 
                     for (Schema.Entry entry : schema.getEntries()) {
                         System.out.println(("====> entry.getName : " + entry.getName()));
-                        System.out.println(("====> field : " + field));
-                       if(entry.getName() == field) {
+                        System.out.println(("====> field : " + (field.startsWith(".") ? field.substring(1) : field)));
+                       if(entry.getName() == (field.startsWith(".") ? field.substring(1) : field)) {
                            builder.withRecord(field, jsonToRecord.toRecord(jsonObjectRead));
                            System.out.println(("====> field found!!!!!!"));
                        } else {
@@ -126,20 +126,19 @@ public class ParserProcessor implements Serializable {
                     }
                     break;
                 case XML:
-                    String xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b></b><c></c></a>";
 
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder Xmlbuilder;
                     try {
                         Xmlbuilder = factory.newDocumentBuilder();
-                        Document document = Xmlbuilder.parse(new InputSource(new StringReader(xmlString)));
+                        Document document = Xmlbuilder.parse(new InputSource(new StringReader(defaultInput.getString(field))));
 
                         builder.withRecord("root", xmlToRecord.toRecord(document));
 
                     } catch (Exception e) {
                         throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
                     }
-
+                    break;
                 default:
                     throw new ParserProcessorRuntimeException("Format is not available.");
             }
