@@ -31,7 +31,7 @@ public class XmlToRecord implements Serializable {
 
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
-        XPathExpression expr = xpath.compile("//");
+        XPathExpression expr = xpath.compile("/*");
 
         System.out.println("====> Node name: " + node.getNodeName());
         System.out.println("====> node value: " + node.getNodeValue());
