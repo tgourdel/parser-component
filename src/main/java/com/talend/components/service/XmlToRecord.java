@@ -28,6 +28,7 @@ public class XmlToRecord implements Serializable {
 
     public Record toRecord(final Node node) {
 
+        System.out.println(("====> Document Node : " + node.getNodeName()));
         Record.Builder builder = factory.newRecordBuilder();
 
         // get all child nodes
@@ -37,7 +38,9 @@ public class XmlToRecord implements Serializable {
             for (int i=0; i<childrens.getLength(); i++) {
                 // get child node
                 Node childNode = childrens.item(i);
-                builder.withRecord(node.getNodeName(), toRecord(childNode));
+                System.out.println(("====> Child node found!"));
+                System.out.println(("====> Child node: " + childNode.getNodeName()));
+                builder.withRecord(childNode.getNodeName(), toRecord(childNode));
             }
         }
         else if (node.getNodeType() == Node.TEXT_NODE) {
