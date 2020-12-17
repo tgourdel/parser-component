@@ -29,6 +29,10 @@ public class XmlToRecord implements Serializable {
 
     public Record toRecord(final Node node) throws XPathExpressionException {
 
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        XPathExpression expr = xpath.compile("//");
+
         System.out.println("====> Node name: " + node.getNodeName());
         System.out.println("====> node value: " + node.getNodeValue());
         Record.Builder builder = factory.newRecordBuilder();
@@ -36,14 +40,10 @@ public class XmlToRecord implements Serializable {
         if(node.hasChildNodes()) {
 
             System.out.println("====> Node has childrens!! ");
-            XPathFactory xpathFactory = XPathFactory.newInstance();
-            XPath xpath = xpathFactory.newXPath();
-            XPathExpression expr = xpath.compile("//*");
-
-            NodeList doc = node.getChildNodes();
-            NodeList elements = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
             for(int i=0; i < elements.getLength(); ++i) {
+
                 System.out.println("====> Node num " + i);
                 System.out.println("====> Name " + elements.item(i).getNodeName());
                 builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
