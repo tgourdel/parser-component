@@ -90,8 +90,11 @@ public class ParserProcessor implements Serializable {
                     final Schema schema = defaultInput.getSchema();
 
                     for (Schema.Entry entry : schema.getEntries()) {
+                        System.out.println(("====> entry.getName : " + entry.getName()));
+                        System.out.println(("====> field : " + field));
                        if(entry.getName() == field) {
-                           builder.withRecord(entry.getName(), jsonToRecord.toRecord(jsonObjectRead));
+                           builder.withRecord(field, jsonToRecord.toRecord(jsonObjectRead));
+                           System.out.println(("====> field found!!!!!!"));
                        } else {
                            switch (entry.getType()) {
                                case DATETIME:
