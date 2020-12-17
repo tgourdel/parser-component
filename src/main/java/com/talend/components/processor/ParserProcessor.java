@@ -92,7 +92,7 @@ public class ParserProcessor implements Serializable {
                     for (Schema.Entry entry : schema.getEntries()) {
                         System.out.println(("====> entry.getName : " + entry.getName()));
                         System.out.println(("====> field : " + (field.startsWith(".") ? field.substring(1) : field)));
-                       if(entry.getName() == (field.startsWith(".") ? field.substring(1) : field)) {
+                       if(entry.getName().equals((field.startsWith(".") ? field.substring(1) : field))) {
                            builder.withRecord(field, jsonToRecord.toRecord(jsonObjectRead));
                            System.out.println(("====> field found!!!!!!"));
                        } else {
@@ -132,7 +132,7 @@ public class ParserProcessor implements Serializable {
                     try {
                         Xmlbuilder = factory.newDocumentBuilder();
                         Document document = Xmlbuilder.parse(new InputSource(new StringReader(defaultInput.getString(field))));
-
+                        document.getDocumentElement().normalize();
                         builder.withRecord("root", xmlToRecord.toRecord(document));
 
                     } catch (Exception e) {

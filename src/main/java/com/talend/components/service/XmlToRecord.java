@@ -36,6 +36,7 @@ public class XmlToRecord implements Serializable {
         NodeList childrens = node.getChildNodes();
 
         if(node.hasChildNodes()) {
+            System.out.println("====> Node has childrens!! ");
             for (int i=0; i<childrens.getLength(); i++) {
                 // get child node
                 Node childNode = childrens.item(i);
@@ -47,6 +48,8 @@ public class XmlToRecord implements Serializable {
             }
         }
         else if (node.getNodeType() == Node.TEXT_NODE) {
+            System.out.println("====> Node is text ");
+
             builder.withString(node.getNodeName(), node.getNodeValue());
         }
         // visit child node
