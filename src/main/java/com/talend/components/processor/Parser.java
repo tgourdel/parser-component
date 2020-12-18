@@ -101,7 +101,9 @@ public class Parser implements Serializable {
                                 recordService.forwardEntry(defaultInput, builder, entry.getName(), entry);
                             } else {
                                 // Replace the one to parse by its record
-                                builder.withRecord(entry, jsonToRecord.toRecord(jsonObjectRead));
+                                builder.withRecord(
+                                        builderFactory.newEntryBuilder().withType(Schema.Type.RECORD).withName(field).build(),
+                                        jsonToRecord.toRecord(jsonObjectRead));
                             }
                         }
                         break;
