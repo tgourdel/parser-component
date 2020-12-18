@@ -45,23 +45,22 @@ public class XmlToRecord implements Serializable {
 
         if(node.hasChildNodes()) {
             System.out.println("====> Node has childrens!! ");
+
             NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
-            //for(int i=0; i < elements.getLength(); ++i) {
             System.out.println("====> Elements length:  " + elements.getLength());
-            for(int i=0; i < elements.getLength(); ++i) {
-                System.out.println("====> Node num " + i);
-                System.out.println("====> Node Type :" + elements.item(i).getNodeType());
-                if(elements.item(i).getNodeType() == Node.TEXT_NODE) {
-                    builder.withString(node.getNodeName(), elements.item(i).getTextContent());
-                } else if (elements.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                    // Recursive call to this function
+            if(elements.getLength() == 0) {
+                // Maybe it's text
+                System.out.println("====> its probably text ");
+                builder.withString(node.getNodeName(),(String) expr.evaluate(node.getChildNodes(), XPathConstants.STRING));
+            } else {
+                for(int i=0; i < elements.getLength(); ++i) {
+                    System.out.println("====> Node num " + i);
+                    System.out.println("====> Node Type :" + elements.item(i).getNodeType());
                     builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
-                } else {
-                    // Should always fall into the two options above
-                    System.out.println("I don't know what's happening");
                 }
             }
+            //for(int i=0; i < elements.getLength(); ++i) {
             System.out.println("====> End if");
         }
 
