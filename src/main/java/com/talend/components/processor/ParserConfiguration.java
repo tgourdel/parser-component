@@ -11,7 +11,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 import java.io.Serializable;
 
-import static com.talend.components.service.ParserProcessorService.INCOMING_PATHS_DYNAMIC;
+import static com.talend.components.service.ParserService.INCOMING_PATHS_DYNAMIC;
 
 @Data
 @GridLayout({

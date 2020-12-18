@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
-public class ParserProcessorService {
+public class ParserService {
 
     public static final String INCOMING_PATHS_DYNAMIC = "INCOMING_PATHS_DYNAMIC";
 
@@ -44,7 +44,7 @@ public class ParserProcessorService {
         return new SuggestionValues(false, Collections.EMPTY_LIST);
     }
 
-    // copu from component runtine impl
+    // copy from component runtine impl
     public boolean forwardEntry(final Record source, final Record.Builder builder, final String sourceColumn,
                                 final Schema.Entry entry) {
         switch (entry.getType()) {

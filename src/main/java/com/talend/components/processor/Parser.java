@@ -27,11 +27,10 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import com.talend.components.service.ParserProcessorService;
+import com.talend.components.service.ParserService;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
-import org.talend.sdk.component.api.service.record.RecordService;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -42,7 +41,7 @@ import org.xml.sax.InputSource;
 @Documentation("Performs JSON or XML parsing on input fields.")
 public class Parser implements Serializable {
     private final ParserConfiguration configuration;
-    private final ParserProcessorService service;
+    private final ParserService service;
     private RecordBuilderFactory builderFactory;
     final JsonToRecord jsonToRecord;
     final XmlToRecord xmlToRecord;
@@ -50,7 +49,7 @@ public class Parser implements Serializable {
     private Format format;
 
     public Parser(@Option("configuration") final ParserConfiguration configuration,
-                  final ParserProcessorService service,
+                  final ParserService service,
                   final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
