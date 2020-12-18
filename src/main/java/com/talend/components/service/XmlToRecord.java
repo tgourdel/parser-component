@@ -55,6 +55,7 @@ public class XmlToRecord implements Serializable {
                 builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
 
             }
+            System.out.println("====> End if");
         }
         else {
             System.out.println("====> Node is text ");
@@ -67,6 +68,9 @@ public class XmlToRecord implements Serializable {
 
             builder.withString(name, value);
         }
+
+        System.out.println("====> Before turn");
+
         // visit child node
         return builder.build();
     }
