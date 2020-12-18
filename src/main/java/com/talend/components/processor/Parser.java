@@ -71,6 +71,9 @@ public class Parser implements Serializable {
             @Input final Record defaultInput,
             @Output final OutputEmitter<Record> defaultOutput) {
 
+
+             final Schema inputSchema = defaultInput.getSchema();
+
             // If a field hasn't been set
             if(field == null || field.isEmpty()) {
                 defaultOutput.emit(defaultInput);
@@ -82,45 +85,43 @@ public class Parser implements Serializable {
                 // Record builder
                 Record.Builder builder = builderFactory.newRecordBuilder();
 
-                switch (format) {
-                    case JSON:
-                        JsonReader jsonReader = Json.createReader(fieldReader);
-                        JsonObject jsonObjectRead = jsonReader.readObject();
-                        jsonReader.close();
+                for (Schema.Entry entry : inputSchema.getEntries()) {
+                    // For each entry except the one to parse
+                    if (!entry.getName().equals(field)) {
+                        // Add all field to the builder except the one to parse
+                        service.forwardEntry(defaultInput, builder, entry.getName(), entry);
+                    } else {
+                        // Replace the one to parse by its record
+                        switch (format) {
+                            case JSON:
+                                JsonReader jsonReader = Json.createReader(fieldReader);
+                                JsonObject jsonObjectRead = jsonReader.readObject();
+                                jsonReader.close();
 
-                        final Schema inputSchema = defaultInput.getSchema();
-
-                        for (Schema.Entry entry : inputSchema.getEntries())
-                        {
-                            // For each entry except the one to parse
-                            if (!entry.getName().equals(field)) {
-                                // Add all field to the builder except the one to parse
-                                service.forwardEntry(defaultInput, builder, entry.getName(), entry);
-                            } else {
-                                // Replace the one to parse by its record
                                 builder.withRecord(
                                         entry.getName(),
                                         jsonToRecord.toRecord(jsonObjectRead));
-                            }
-                        }
-                        break;
-                    case XML:
-                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                        DocumentBuilder Xmlbuilder;
-                        try {
-                            Xmlbuilder = factory.newDocumentBuilder();
-                            Document document = Xmlbuilder.parse(new InputSource(fieldReader));
-                            document.getDocumentElement().normalize();
-                            builder.withRecord(field, xmlToRecord.toRecord(document));
 
-                        } catch (Exception e) {
-                            throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
+                                break;
+                            case XML:
+                                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                                DocumentBuilder Xmlbuilder;
+                                try {
+                                    Xmlbuilder = factory.newDocumentBuilder();
+                                    Document document = Xmlbuilder.parse(new InputSource(fieldReader));
+                                    document.getDocumentElement().normalize();
+                                    builder.withRecord(entry.getName(), xmlToRecord.toRecord(document));
+
+                                } catch (Exception e) {
+                                    throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
+                                }
+
+                                break;
+                            default:
+                                throw new ParserProcessorRuntimeException("Format is not available.");
                         }
-                        break;
-                    default:
-                        throw new ParserProcessorRuntimeException("Format is not available.");
+                    }
                 }
-
                 // Emit record built earlier
                 Record record = builder.build();
                 defaultOutput.emit(record);
