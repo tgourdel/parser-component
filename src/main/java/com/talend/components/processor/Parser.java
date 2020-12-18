@@ -44,7 +44,6 @@ public class Parser implements Serializable {
     private final ParserConfiguration configuration;
     private final ParserProcessorService service;
     private RecordBuilderFactory builderFactory;
-    private RecordService recordService;
     final JsonToRecord jsonToRecord;
     final XmlToRecord xmlToRecord;
     private String field;
@@ -56,7 +55,6 @@ public class Parser implements Serializable {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;
-        this.recordService = recordService;
         this.jsonToRecord = new JsonToRecord(builderFactory, false);
         this.xmlToRecord = new XmlToRecord(builderFactory);
     }
@@ -98,7 +96,7 @@ public class Parser implements Serializable {
                             // For each entry except the one to parse
                             if (!entry.getName().equals(field)) {
                                 // Add all field to the builder except the one to parse
-                                recordService.forwardEntry(defaultInput, builder, entry.getName(),
+                                service.forwardEntry(defaultInput, builder, entry.getName(),
                                         builderFactory.newEntryBuilder().withType(entry.getType()).withName(entry.getName()).build());
                             } else {
                                 // Replace the one to parse by its record

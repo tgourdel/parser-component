@@ -8,7 +8,8 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.completion.Values;
 
-import java.util.Collections;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class ParserProcessorService {
@@ -43,47 +44,53 @@ public class ParserProcessorService {
         return new SuggestionValues(false, Collections.EMPTY_LIST);
     }
 
-    public Record.Builder copyRecordExceptOneField(Record inputRecord, Record.Builder builder, String fieldToRemove) {
-
-        Schema inputSchema = inputRecord.getSchema();
-
-        for (Schema.Entry entry : inputSchema.getEntries())
-        {
-            if(!entry.getName().equals(fieldToRemove)) {
-                switch (entry.getType()) {
-                    case DATETIME:
-                        builder.withDateTime(entry.getName(), inputRecord.getDateTime(entry.getName()));
-                        break;
-                    case BOOLEAN:
-                        builder.withBoolean(entry.getName(), inputRecord.getBoolean(entry.getName()));
-                        break;
-                    case DOUBLE:
-                        builder.withDouble(entry.getName(), inputRecord.getDouble(entry.getName()));
-                        break;
-                    case INT:
-                        builder.withInt(entry.getName(), inputRecord.getInt(entry.getName()));
-                        break;
-                    case LONG:
-                        builder.withLong(entry.getName(), inputRecord.getLong(entry.getName()));
-                        break;
-                    case FLOAT:
-                        builder.withFloat(entry.getName(), inputRecord.getFloat(entry.getName()));
-                        break;
-                    case STRING:
-                        builder.withString(entry.getName(), inputRecord.getString(entry.getName()));
-                        break;
-                    case BYTES:
-                        builder.withBytes(entry.getName(), inputRecord.getBytes(entry.getName()));
-                        break;
-                    case ARRAY:
-                        // builder.withArray(entry.getName(), inputRecord.getArray(Class<entry.getElementSchema().getType()>, entry.getName()));
-                        break;
-                    case RECORD:
-                        builder.withRecord(entry.getName(), inputRecord.getRecord(entry.getName()));
-                }
-            }
+    // copu from component runtine impl
+    public boolean forwardEntry(final Record source, final Record.Builder builder, final String sourceColumn,
+                                final Schema.Entry entry) {
+        switch (entry.getType()) {
+            case INT:
+                final OptionalInt optionalInt = source.getOptionalInt(sourceColumn);
+                optionalInt.ifPresent(v -> builder.withInt(entry, v));
+                return optionalInt.isPresent();
+            case LONG:
+                final OptionalLong optionalLong = source.getOptionalLong(sourceColumn);
+                optionalLong.ifPresent(v -> builder.withLong(entry, v));
+                return optionalLong.isPresent();
+            case FLOAT:
+                final OptionalDouble optionalFloat = source.getOptionalFloat(sourceColumn);
+                optionalFloat.ifPresent(v -> builder.withFloat(entry, (float) v));
+                return optionalFloat.isPresent();
+            case DOUBLE:
+                final OptionalDouble optionalDouble = source.getOptionalDouble(sourceColumn);
+                optionalDouble.ifPresent(v -> builder.withDouble(entry, v));
+                return optionalDouble.isPresent();
+            case BOOLEAN:
+                final Optional<Boolean> optionalBoolean = source.getOptionalBoolean(sourceColumn);
+                optionalBoolean.ifPresent(v -> builder.withBoolean(entry, v));
+                return optionalBoolean.isPresent();
+            case STRING:
+                final Optional<String> optionalString = source.getOptionalString(sourceColumn);
+                optionalString.ifPresent(v -> builder.withString(entry, v));
+                return optionalString.isPresent();
+            case DATETIME:
+                final Optional<ZonedDateTime> optionalDateTime = source.getOptionalDateTime(sourceColumn);
+                optionalDateTime.ifPresent(v -> builder.withDateTime(entry, v));
+                return optionalDateTime.isPresent();
+            case BYTES:
+                final Optional<byte[]> optionalBytes = source.getOptionalBytes(sourceColumn);
+                optionalBytes.ifPresent(v -> builder.withBytes(entry, v));
+                return optionalBytes.isPresent();
+            case RECORD:
+                final Optional<Record> optionalRecord = source.getOptionalRecord(sourceColumn);
+                optionalRecord.ifPresent(v -> builder.withRecord(entry, v));
+                return optionalRecord.isPresent();
+            case ARRAY:
+                final Optional<Collection<Object>> optionalArray = source.getOptionalArray(Object.class, sourceColumn);
+                optionalArray.ifPresent(v -> builder.withArray(entry, v));
+                return optionalArray.isPresent();
+            default:
+                throw new IllegalStateException("Unsupported entry type: " + entry);
         }
-        return builder;
     }
 
 }
