@@ -48,15 +48,17 @@ public class XmlToRecord implements Serializable {
             NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
             //for(int i=0; i < elements.getLength(); ++i) {
-            for(int i=0; i < 1; ++i) {
+            System.out.println("====> Elements length:  " + elements.getLength());
+            for(int i=0; i < elements.getLength(); ++i) {
                 System.out.println("====> Node num " + i);
-                // System.out.println("====> Name " + elements.item(i).getNodeName());
-                //System.out.println("====> Record created: " + toRecord(elements.item(i)).toString() );
+                System.out.println("====> Node Type :" + elements.item(i).getNodeType());
                 if(elements.item(i).getNodeType() == Node.TEXT_NODE) {
                     builder.withString(node.getNodeName(), elements.item(i).getTextContent());
                 } else if (elements.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
+                    // Recursive call to this function
+                    builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
                 } else {
+                    // Should always fall into the two options above
                     System.out.println("I don't know what's happening");
                 }
             }
