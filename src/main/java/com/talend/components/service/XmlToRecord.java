@@ -52,24 +52,18 @@ public class XmlToRecord implements Serializable {
                 System.out.println("====> Node num " + i);
                 // System.out.println("====> Name " + elements.item(i).getNodeName());
                 //System.out.println("====> Record created: " + toRecord(elements.item(i)).toString() );
+                if(elements.item(i).getNodeType() == Node.TEXT_NODE) {
+                    builder.withString(node.getNodeName(), elements.item(i).getTextContent());
+                } else if (elements.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
-
+                } else {
+                    System.out.println("I don't know what's happening");
+                }
             }
             System.out.println("====> End if");
         }
-        else {
-            System.out.println("====> Node is text ");
 
-            String name = node.getNodeName();
-            String value = node.getTextContent();
-
-            System.out.println("====>Name : " + name);
-            System.out.println("====>Value : " + value);
-
-            builder.withString(name, value);
-        }
-
-        System.out.println("====> Before turn");
+        System.out.println("====> Before return");
 
         // visit child node
         return builder.build();
