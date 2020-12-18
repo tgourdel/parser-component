@@ -102,7 +102,7 @@ public class Parser implements Serializable {
                             } else {
                                 // Replace the one to parse by its record
                                 builder.withRecord(
-                                        builderFactory.newEntryBuilder().withType(Schema.Type.RECORD).withName(field).build(),
+                                        entry.getName(),
                                         jsonToRecord.toRecord(jsonObjectRead));
                             }
                         }
