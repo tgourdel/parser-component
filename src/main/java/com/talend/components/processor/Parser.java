@@ -96,8 +96,7 @@ public class Parser implements Serializable {
                             // For each entry except the one to parse
                             if (!entry.getName().equals(field)) {
                                 // Add all field to the builder except the one to parse
-                                service.forwardEntry(defaultInput, builder, entry.getName(),
-                                        builderFactory.newEntryBuilder().withType(entry.getType()).withName(entry.getName()).build());
+                                service.forwardEntry(defaultInput, builder, entry.getName(), entry);
                             } else {
                                 // Replace the one to parse by its record
                                 builder.withRecord(
