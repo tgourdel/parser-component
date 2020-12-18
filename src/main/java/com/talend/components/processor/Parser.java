@@ -71,27 +71,19 @@ public class Parser implements Serializable {
             @Input final Record defaultInput,
             @Output final OutputEmitter<Record> defaultOutput) {
 
-
              final Schema inputSchema = defaultInput.getSchema();
 
-            // If a field hasn't been set
             if(field == null || field.isEmpty()) {
-                defaultOutput.emit(defaultInput);
+                defaultOutput.emit(defaultInput); //
             } else { // If a field is set proceed
 
-                // Used to read JSON or XML
                 StringReader fieldReader = new StringReader(defaultInput.getString(field));
-
-                // Record builder
                 Record.Builder builder = builderFactory.newRecordBuilder();
 
                 for (Schema.Entry entry : inputSchema.getEntries()) {
-                    // For each entry except the one to parse
-                    if (!entry.getName().equals(field)) {
-                        // Add all field to the builder except the one to parse
-                        service.forwardEntry(defaultInput, builder, entry.getName(), entry);
+                    if (!entry.getName().equals(field)) { // For each exact the one to parse
+                        service.forwardEntry(defaultInput, builder, entry.getName(), entry); // Forward all others
                     } else {
-                        // Replace the one to parse by its record
                         switch (format) {
                             case JSON:
                                 JsonReader jsonReader = Json.createReader(fieldReader);
