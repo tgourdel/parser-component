@@ -51,7 +51,7 @@ public class XmlToRecord implements Serializable {
             for(int i=0; i < 1; ++i) {
                 System.out.println("====> Node num " + i);
                 // System.out.println("====> Name " + elements.item(i).getNodeName());
-                System.out.println("====> Record created: " + toRecord(elements.item(i)).toString() );
+                //System.out.println("====> Record created: " + toRecord(elements.item(i)).toString() );
                 builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
 
             }
