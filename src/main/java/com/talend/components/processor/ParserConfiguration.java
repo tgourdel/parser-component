@@ -19,7 +19,7 @@ import static com.talend.components.service.ParserProcessorService.INCOMING_PATH
         @GridLayout.Row({ "field"})
 })
 @Documentation("JSON or XML parser on input fields.")
-public class ParserProcessorConfiguration implements Serializable {
+public class ParserConfiguration implements Serializable {
 
     @Option
     @Required

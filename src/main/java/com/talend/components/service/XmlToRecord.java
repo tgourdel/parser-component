@@ -3,12 +3,20 @@ package com.talend.components.service;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.json.*;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.xpath.*;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -26,16 +34,16 @@ public class XmlToRecord implements Serializable {
 
     public Record toRecord(final Node node) throws XPathExpressionException {
 
+        Record.Builder builder = factory.newRecordBuilder();
+
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
         XPathExpression expr = xpath.compile(".//child::*");
 
         System.out.println("====> Node name: " + node.getNodeName());
         System.out.println("====> node value: " + node.getNodeValue());
-        Record.Builder builder = factory.newRecordBuilder();
 
         if(node.hasChildNodes()) {
-
             System.out.println("====> Node has childrens!! ");
             NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
@@ -62,8 +70,6 @@ public class XmlToRecord implements Serializable {
                 builder.withArray(factory.newEntryBuilder().withName(listname).withType(Schema.Type.ARRAY)
                         .build(), items);
             }
-
-
         }
         else if (node.getNodeType() == Node.TEXT_NODE) {
             System.out.println("====> Node is text ");
@@ -81,4 +87,5 @@ public class XmlToRecord implements Serializable {
         // visit child node
         return builder.build();
     }
+
 }

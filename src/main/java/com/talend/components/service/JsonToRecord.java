@@ -54,6 +54,7 @@ public class JsonToRecord implements Serializable {
                     final List<Object> items = value.asJsonArray().stream().map(this::mapJson).collect(toList());
                     builder.withArray(factory.newEntryBuilder().withName(key).withType(Schema.Type.ARRAY)
                             .withElementSchema(getArrayElementSchema(factory, items)).build(), items);
+
                     break;
                 }
                 case OBJECT: {
