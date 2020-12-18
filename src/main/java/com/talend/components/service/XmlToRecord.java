@@ -51,11 +51,13 @@ public class XmlToRecord implements Serializable {
             System.out.println("====> Elements length:  " + elements.getLength());
 
                 for(int i=0; i < elements.getLength(); ++i) {
+
+                    NodeList subelements = (NodeList) expr.evaluate(elements.item(i).getChildNodes(), XPathConstants.NODESET);
+
                     System.out.println("====> Node num " + i);
                     System.out.println("====> Node Type :" + elements.item(i).getNodeType());
-                    if(elements.item(i).getChildNodes().getLength() == 0) {
-                        builder.withString(node.getNodeName(),
-                                (String) expr.evaluate(elements.item(i).getChildNodes().item(0), XPathConstants.STRING));
+                    if(subelements.getLength() == 0) {
+                        builder.withString(node.getNodeName(),subelements.item(0).getTextContent());
                     } else {
                         builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
                     }
