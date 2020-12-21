@@ -40,25 +40,24 @@ public class XmlToRecord implements Serializable {
         XPath xpath = xpathFactory.newXPath();
         XPathExpression expr = xpath.compile("./child::*");
 
-        System.out.println("====> Node name: " + node.getNodeName());
-        System.out.println("====> node value: " + node.getNodeValue());
-
         if(node.hasChildNodes()) {
-            System.out.println("====> Node has childrens!! ");
 
             NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
 
-            System.out.println("====> Elements length:  " + elements.getLength());
+            for(int i=0; i < elements.getLength(); ++i) {
 
+            }
+
+                // For each child
                 for(int i=0; i < elements.getLength(); ++i) {
 
+                    // Do they have child which are nodes ?
                     NodeList subelements = (NodeList) expr.evaluate(elements.item(i).getChildNodes(), XPathConstants.NODESET);
 
-                    System.out.println("====> Node num " + i);
-                    System.out.println("====> Node Type :" + elements.item(i).getNodeType());
+                    // If no these are values
                     if(subelements.getLength() == 0) {
                         builder.withString(elements.item(i).getNodeName() ,elements.item(i).getChildNodes().item(0).getTextContent());
-                    } else {
+                    } else { // If yes recursive call to this function
                         builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
                     }
             }
