@@ -32,7 +32,7 @@ public class ParserConfiguration implements Serializable {
 
     @Option
     @Required
-    @ActiveIf(target = "selectionMode", value = "SIMPLE")
+    @ActiveIf(target = "selectionMode", value = {"SIMPLE", "ADVANCED"})
     @Suggestable(INCOMING_PATHS_DYNAMIC)
     @Documentation("The input field name")
     private String field = "";
@@ -40,9 +40,11 @@ public class ParserConfiguration implements Serializable {
     @Option
     @Required
     @DefaultValue("JSON")
-    @ActiveIf(target = "selectionMode", value = "ADVANCED")
+    @ActiveIf(target = "selectionMode", value = {"SIMPLE", "ADVANCED"})
     @Documentation("types")
     private Format format;
+
+
 
 
     public enum SelectionMode {

@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -32,38 +34,94 @@ public class XmlToRecord implements Serializable {
         this.factory = factory;
     }
 
-    public Record toRecord(final Node node) throws XPathExpressionException {
+    public Record toRecord(final Node node) throws XPathExpressionException, ParseException {
 
         Record.Builder builder = factory.newRecordBuilder();
 
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPath xpath = xpathFactory.newXPath();
-        XPathExpression expr = xpath.compile("./child::*");
+        for(Node n: asList(node.getChildNodes())) {
+            switch(n.getNodeType()) {
+                case Node.ELEMENT_NODE:
+                    System.out.println("Node name: " + n.getNodeName());
+                    System.out.println("Node text content: " + n.getTextContent());
+                    builder.withRecord(n.getNodeName(), toRecord(n));
+                    break;
+                case Node.TEXT_NODE:
 
-        if(node.hasChildNodes()) {
-
-            NodeList elements = (NodeList) expr.evaluate(node.getChildNodes(), XPathConstants.NODESET);
-
-            for(int i=0; i < elements.getLength(); ++i) {
-
-            }
-
-                // For each child
-                for(int i=0; i < elements.getLength(); ++i) {
-
-                    // Do they have child which are nodes ?
-                    NodeList subelements = (NodeList) expr.evaluate(elements.item(i).getChildNodes(), XPathConstants.NODESET);
-
-                    // If no these are values
-                    if(subelements.getLength() == 0) {
-                        builder.withString(elements.item(i).getNodeName() ,elements.item(i).getChildNodes().item(0).getTextContent());
-                    } else { // If yes recursive call to this function
-                        builder.withRecord(elements.item(i).getNodeName(), toRecord(elements.item(i)));
+                    System.out.println("Node name: " + n.getNodeName());
+                    System.out.println("Node text content: " + n.getTextContent());
+                    try {
+                        Number number = NumberFormat.getInstance().parse(n.getTextContent());
+                        if(Double.class.isInstance(number)){
+                            builder.withDouble(node.getNodeName(), number.doubleValue());
+                        }
+                        if (Long.class.isInstance(number)) {
+                            builder.withLong(node.getNodeName(), number.longValue());
+                        }
+                    } catch (ParseException e) {
+                        builder.withString(n.getNodeName(),n.getTextContent());
                     }
+                    builder.withString(n.getNodeName(),n.getTextContent());
+                    break;
+                default:
+                    // code block
             }
         }
-        // visit child node
         return builder.build();
+    }
+
+    /**
+    private Schema getArrayElementSchema(final RecordBuilderFactory factory, final List<Object> items) {
+        if (items.isEmpty()) {
+            return factory.newSchemaBuilder(Schema.Type.STRING).build();
+        }
+        final Schema firstSchema = toSchema(items.get(0));
+        if (firstSchema.getType() == Schema.Type.RECORD) {
+            // This code merges schema of all record of the array [{aaa, bbb}, {aaa, ccc}] => {aaa, bbb, ccc}
+            return items.stream().skip(1).map(this::toSchema).reduce(firstSchema, (Schema s1, Schema s2) -> {
+                if (s1 == null) {
+                    return s2;
+                }
+                if (s2 == null) { // unlikely
+                    return s1;
+                }
+                final List<Schema.Entry> entries1 = s1.getEntries();
+                final List<Schema.Entry> entries2 = s2.getEntries();
+                final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
+                if (!names1.equals(names2)) {
+                    // here we are not good since values will not be right anymore,
+                    // forbidden for current version anyway but potentially supported later
+                    final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
+                    entries1.forEach(builder::withEntry);
+                    entries2.stream().filter(it -> !names1.contains(it.getName())).forEach(builder::withEntry);
+                    return builder.build();
+                }
+                return s1;
+            });
+        } else {
+            return firstSchema;
+        }
+    }*/
+
+    public List<Node> asList(NodeList n) {
+        return n.getLength()==0?
+            Collections.<Node>emptyList(): new NodeListWrapper(n);
+    }
+
+    final class NodeListWrapper extends AbstractList<Node> implements RandomAccess {
+        private final NodeList list;
+
+        NodeListWrapper(NodeList l) {
+            list = l;
+        }
+
+        public Node get(int index) {
+            return list.item(index);
+        }
+
+        public int size() {
+            return list.getLength();
+        }
     }
 
 }

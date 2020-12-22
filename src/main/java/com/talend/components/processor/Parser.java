@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.talend.components.service.JsonToRecord;
 
-import com.talend.components.ParserProcessorRuntimeException;
+import com.talend.components.ParserRuntimeException;
 import com.talend.components.service.Format;
 import com.talend.components.service.XmlToRecord;
 import org.talend.sdk.component.api.component.Icon;
@@ -64,6 +64,7 @@ public class Parser implements Serializable {
         field = this.configuration.getField();
         field = (field.startsWith(".") ? field.substring(1) : field);
         format = this.configuration.getFormat();
+
     }
 
     @ElementListener
@@ -86,6 +87,7 @@ public class Parser implements Serializable {
                     } else {
                         switch (format) {
                             case JSON:
+                                try {
                                 JsonReader jsonReader = Json.createReader(fieldReader);
                                 JsonObject jsonObjectRead = jsonReader.readObject();
                                 jsonReader.close();
@@ -93,6 +95,9 @@ public class Parser implements Serializable {
                                 builder.withRecord(
                                         entry.getName(),
                                         jsonToRecord.toRecord(jsonObjectRead));
+                                } catch (Exception e) {
+                                    throw new ParserRuntimeException("JSON Parsing failed: " + e.getMessage());
+                                }
 
                                 break;
                             case XML:
@@ -105,12 +110,12 @@ public class Parser implements Serializable {
                                     builder.withRecord(entry.getName(), xmlToRecord.toRecord(document));
 
                                 } catch (Exception e) {
-                                    throw new ParserProcessorRuntimeException("XML Parsing failed: " + e.getMessage());
+                                    throw new ParserRuntimeException("XML Parsing failed: " + e.getMessage());
                                 }
 
                                 break;
                             default:
-                                throw new ParserProcessorRuntimeException("Format is not available.");
+                                throw new ParserRuntimeException("Format is not available.");
                         }
                     }
                 }

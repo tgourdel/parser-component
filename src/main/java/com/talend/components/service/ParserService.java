@@ -93,4 +93,14 @@ public class ParserService {
         }
     }
 
+    public Format determineFormat(String s) {
+        if(s.trim().startsWith("<")) {
+            return Format.XML;
+        } else if(s.trim().startsWith("{") || s.trim().startsWith("[")) {
+            return Format.JSON;
+        } else {
+            return null;
+        }
+    }
+
 }
