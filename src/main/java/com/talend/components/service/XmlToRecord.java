@@ -109,22 +109,22 @@ public class XmlToRecord implements Serializable {
         // For text nodes
         System.out.println("mapXml text");
 
-                System.out.println("Node name: " + n.getNodeName());
-                System.out.println("Node text content: " + n.getTextContent());
+                System.out.println("Node name: " + name);
+                System.out.println("Node text content: " + value);
                 try {
-                    Number number = NumberFormat.getInstance().parse(n.getTextContent());
+                    Number number = NumberFormat.getInstance().parse(value);
                     if(Double.class.isInstance(number)){
                         System.out.println("Double");
-                        builder.withDouble(n.getNodeName(), number.doubleValue());
+                        builder.withDouble(name, number.doubleValue());
                     }
                     if (Long.class.isInstance(number)) {
                         System.out.println("Long");
-                        builder.withLong(n.getNodeName(), number.longValue());
+                        builder.withLong(name, number.longValue());
                     }
                 } catch (ParseException e) {
                     System.out.println("Parse not number : " + e);
                     System.out.println("build with string");
-                    builder.withString(n.getNodeName(), n.getTextContent());
+                    builder.withString(name, value);
                 }
     }
 
