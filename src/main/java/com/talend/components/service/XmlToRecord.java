@@ -50,10 +50,11 @@ public class XmlToRecord implements Serializable {
         if(childNodesSize == 1) {
             System.out.println("only one child");
             Node onlyChild = childNodes.get(0);
-            if(onlyChild.getNodeType() == Node.ELEMENT_NODE)
-                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild));
+            if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
+                mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(), builder);
+            }
             else
-                mapXmlText(onlyChild, builder);
+                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild));
         }
 
         // Multiple child
@@ -77,10 +78,12 @@ public class XmlToRecord implements Serializable {
 
                 if(it == 1) {
                     System.out.println(n.getNodeName() + "is unique");
-                    if(n.getNodeType() == Node.ELEMENT_NODE)
-                        builder.withRecord(n.getNodeName(), toRecord(n));
+                    if(n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
+                        mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), builder);
+                    }
                     else
-                        mapXmlText(n, builder);
+                        builder.withRecord(n.getNodeName(), toRecord(n));
+
                 } else {
                     System.out.println(n.getNodeName() + "isn't unique");
                     isArray = true;
@@ -102,11 +105,10 @@ public class XmlToRecord implements Serializable {
         return builder.build();
     }
 
-    private void mapXmlText(final Node n, Record.Builder builder) {
+    private void mapXmlText(final String name, final String value, Record.Builder builder) {
+        // For text nodes
+        System.out.println("mapXml text");
 
-        System.out.println("mapXml test");
-        switch (n.getNodeType()) {
-            case Node.TEXT_NODE:
                 System.out.println("Node name: " + n.getNodeName());
                 System.out.println("Node text content: " + n.getTextContent());
                 try {
@@ -122,12 +124,8 @@ public class XmlToRecord implements Serializable {
                 } catch (ParseException e) {
                     System.out.println("Parse not number : " + e);
                     System.out.println("build with string");
-                    builder.withString(n.getNodeName(),n.getTextContent());
+                    builder.withString(n.getNodeName(), n.getTextContent());
                 }
-                break;
-            default:
-                // code block
-        }
     }
 
 
