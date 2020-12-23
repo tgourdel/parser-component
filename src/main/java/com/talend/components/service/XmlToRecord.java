@@ -67,6 +67,8 @@ public class XmlToRecord implements Serializable {
 
             for(Node n: childNodes) {
 
+                it = 0;
+
                 for(Node o: childNodes) {
                     if(n.getNodeName().equals(o.getNodeName())) {
                       it++;
@@ -74,12 +76,13 @@ public class XmlToRecord implements Serializable {
                 }
 
                 if(it == 1) {
-                    System.out.println("unique name value in child");
+                    System.out.println(n.getNodeName() + "is unique");
                     if(n.getNodeType() == Node.ELEMENT_NODE)
                         builder.withRecord(n.getNodeName(), toRecord(n));
                     else
                         mapXmlText(n, builder);
                 } else {
+                    System.out.println(n.getNodeName() + "isn't unique");
                     isArray = true;
                     arrayName = n.getNodeName();
                     System.out.println("Add record to array");
