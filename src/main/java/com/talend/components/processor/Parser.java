@@ -64,7 +64,6 @@ public class Parser implements Serializable {
         field = this.configuration.getField();
         field = (field.startsWith(".") ? field.substring(1) : field);
         format = this.configuration.getFormat();
-
     }
 
     @ElementListener
