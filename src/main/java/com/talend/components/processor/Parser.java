@@ -106,7 +106,7 @@ public class Parser implements Serializable {
                                     Xmlbuilder = factory.newDocumentBuilder();
                                     Document document = Xmlbuilder.parse(new InputSource(fieldReader));
                                     document.getDocumentElement().normalize();
-                                    builder.withRecord(entry.getName(), xmlToRecord.toRecord(document));
+                                    builder.withRecord(entry.getName(), xmlToRecord.toRecord(document, this.configuration.isEnforceString()));
 
                                 } catch (Exception e) {
                                     throw new ParserRuntimeException("XML Parsing failed: " + e.getMessage());

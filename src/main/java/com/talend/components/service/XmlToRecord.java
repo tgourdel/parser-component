@@ -34,7 +34,7 @@ public class XmlToRecord implements Serializable {
         this.factory = factory;
     }
 
-    public Record toRecord(final Node node) throws XPathExpressionException, ParseException {
+    public Record toRecord(final Node node, boolean enforceString) throws XPathExpressionException, ParseException {
 
         // Initialization
         Record.Builder builder = factory.newRecordBuilder();
@@ -51,10 +51,10 @@ public class XmlToRecord implements Serializable {
             System.out.println("only one child");
             Node onlyChild = childNodes.get(0);
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
-                mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(), builder);
+                mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(),enforceString, builder);
             }
             else
-                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild));
+                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild, enforceString));
         }
 
         // Multiple child
@@ -79,17 +79,17 @@ public class XmlToRecord implements Serializable {
                 if(it == 1) {
                     System.out.println(n.getNodeName() + "is unique");
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
-                        mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), builder);
+                        mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), enforceString, builder);
                     }
                     else
-                        builder.withRecord(n.getNodeName(), toRecord(n));
+                        builder.withRecord(n.getNodeName(), toRecord(n, enforceString));
 
                 } else {
                     System.out.println(n.getNodeName() + "isn't unique");
                     isArray = true;
                     arrayName = n.getNodeName();
                     System.out.println("Add record to array");
-                    nodeArray.add(toRecord(n));
+                    nodeArray.add(toRecord(n, enforceString));
                 }
             }
 
@@ -98,33 +98,35 @@ public class XmlToRecord implements Serializable {
                 builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
                         .withElementSchema(nodeArray.get(0).getSchema()).build(), nodeArray);
             }
-
         }
-
-
         return builder.build();
     }
 
-    private void mapXmlText(final String name, final String value, Record.Builder builder) {
+    private void mapXmlText(final String name, final String value, boolean enforceString, Record.Builder builder) {
         // For text nodes
         System.out.println("mapXml text");
 
                 System.out.println("Node name: " + name);
                 System.out.println("Node text content: " + value);
-                try {
-                    Number number = NumberFormat.getInstance().parse(value);
-                    if(Double.class.isInstance(number)){
-                        System.out.println("Double");
-                        builder.withDouble(name, number.doubleValue());
-                    }
-                    if (Long.class.isInstance(number)) {
-                        System.out.println("Long");
-                        builder.withLong(name, number.longValue());
-                    }
-                } catch (ParseException e) {
-                    System.out.println("Parse not number : " + e);
-                    System.out.println("build with string");
+
+                if(enforceString) {
                     builder.withString(name, value);
+                } else {
+                    try {
+                        Number number = NumberFormat.getInstance().parse(value);
+                        if(Double.class.isInstance(number)){
+                            System.out.println("Double");
+                            builder.withDouble(name, number.doubleValue());
+                        }
+                        if (Long.class.isInstance(number)) {
+                            System.out.println("Long");
+                            builder.withLong(name, number.longValue());
+                        }
+                    } catch (ParseException e) {
+                        System.out.println("Parse not number : " + e);
+                        System.out.println("build with string");
+                        builder.withString(name, value);
+                    }
                 }
     }
 

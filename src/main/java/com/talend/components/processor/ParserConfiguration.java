@@ -5,6 +5,7 @@ import lombok.Data;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -44,7 +45,13 @@ public class ParserConfiguration implements Serializable {
     @Documentation("types")
     private Format format;
 
-
+    @Option
+    @Required
+    @DefaultValue("false")
+    @ActiveIfs({@ActiveIf(target = "selectionMode", value = "ADVANCED"),
+               @ActiveIf(target = "format", value = "XML")})
+    @Documentation("Enforce String")
+    private boolean enforceString = false;
 
 
     public enum SelectionMode {
