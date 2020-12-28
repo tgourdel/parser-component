@@ -51,10 +51,13 @@ public class XmlToRecord implements Serializable {
             System.out.println("only one child");
             Node onlyChild = childNodes.get(0);
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
+                System.out.println("Only child is text -> mapXmlText");
                 mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(),enforceString, builder);
             }
-            else
+            else {
+                System.out.println("not text child so build record");
                 builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild, enforceString));
+            }
         }
 
         // Multiple child
@@ -77,7 +80,7 @@ public class XmlToRecord implements Serializable {
                 }
 
                 if(it == 1) {
-                    System.out.println(n.getNodeName() + "is unique");
+                    System.out.println(n.getNodeName() + " is unique");
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                         mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), enforceString, builder);
                     }
@@ -85,7 +88,7 @@ public class XmlToRecord implements Serializable {
                         builder.withRecord(n.getNodeName(), toRecord(n, enforceString));
 
                 } else {
-                    System.out.println(n.getNodeName() + "isn't unique");
+                    System.out.println(n.getNodeName() + " isn't unique");
                     isArray = true;
                     arrayName = n.getNodeName();
                     System.out.println("Add record to array");

@@ -48,11 +48,9 @@ public class ParserConfiguration implements Serializable {
     @Option
     @Required
     @DefaultValue("false")
-    @ActiveIfs({@ActiveIf(target = "selectionMode", value = "ADVANCED"),
-               @ActiveIf(target = "format", value = "XML")})
+    @ActiveIf(target = "selectionMode", value = "ADVANCED")
     @Documentation("Enforce String")
     private boolean enforceString = false;
-
 
     public enum SelectionMode {
         SIMPLE,
