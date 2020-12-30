@@ -61,6 +61,8 @@ public class XmlToRecord implements Serializable {
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                 System.out.println("Only child is text -> mapXmlText");
                 mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(), builder);
+            } else if (onlyChild.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE) {
+                builder.withString(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent());
             }
             else {
                 System.out.println("not text child so build record");
