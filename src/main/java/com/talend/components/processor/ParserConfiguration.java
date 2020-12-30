@@ -24,7 +24,8 @@ import static com.talend.components.service.ParserService.INCOMING_PATHS_DYNAMIC
         @GridLayout.Row({ "selectionMode"}),
         @GridLayout.Row({ "format"}),
         @GridLayout.Row({ "field"}),
-        @GridLayout.Row({ "enforceString"})
+        @GridLayout.Row({ "enforceNumbersAsDouble"}),
+        @GridLayout.Row({ "enforceNumberAsString"})
 })
 @Documentation("JSON or XML parser on input fields.")
 public class ParserConfiguration implements Serializable {
@@ -54,7 +55,7 @@ public class ParserConfiguration implements Serializable {
     @ActiveIfs(operator = AND, value = { @ActiveIf(target = "selectionMode", value = "ADVANCED"),
             @ActiveIf(target = "format", value = "XML") })
     @Documentation("Enforce String")
-    private boolean enforceString = false;
+    private boolean enforceNumbersAsString = false;
 
     @Option
     @Required
@@ -62,7 +63,7 @@ public class ParserConfiguration implements Serializable {
     @ActiveIfs(operator = AND, value = { @ActiveIf(target = "selectionMode", value = "ADVANCED"),
             @ActiveIf(target = "format", value = "JSON") })
     @Documentation("Force number as double")
-    private boolean forceDouble = false;
+    private boolean enforceNumbersAsDouble = false;
 
     public enum SelectionMode {
         SIMPLE,

@@ -30,11 +30,18 @@ public class XmlToRecord implements Serializable {
 
     private final RecordBuilderFactory factory;
 
-    public XmlToRecord(RecordBuilderFactory factory) {
-        this.factory = factory;
+    private final boolean enforceNumberAsString;
+
+    public XmlToRecord(final RecordBuilderFactory factory) {
+        this(factory, false);
     }
 
-    public Record toRecord(final Node node, boolean enforceString) throws XPathExpressionException, ParseException {
+    public XmlToRecord(RecordBuilderFactory factory, boolean enforceNumberAsString) {
+        this.factory = factory;
+        this.enforceNumberAsString = enforceNumberAsString;
+    }
+
+    public Record toRecord(final Node node) throws XPathExpressionException, ParseException {
 
         // Initialization
         Record.Builder builder = factory.newRecordBuilder();
@@ -53,11 +60,11 @@ public class XmlToRecord implements Serializable {
             System.out.println("only one child 2");
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                 System.out.println("Only child is text -> mapXmlText");
-                mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(),enforceString, builder);
+                mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(), builder);
             }
             else {
                 System.out.println("not text child so build record");
-                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild, enforceString));
+                builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild));
             }
         }
 
@@ -84,10 +91,10 @@ public class XmlToRecord implements Serializable {
                 if(it == 1) {
                     System.out.println(n.getNodeName() + " is unique");
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
-                        mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), enforceString, builder);
+                        mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), builder);
                     }
                     else
-                        builder.withRecord(n.getNodeName(), toRecord(n, enforceString));
+                        builder.withRecord(n.getNodeName(), toRecord(n));
 
                 } else {
                     System.out.println(n.getNodeName() + " isn't unique");
@@ -98,7 +105,7 @@ public class XmlToRecord implements Serializable {
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE)
                         stringArray.add(n.getTextContent());
                     else
-                        nodeArray.add(toRecord(n, enforceString));
+                        nodeArray.add(toRecord(n));
                 }
             }
 
@@ -122,14 +129,14 @@ public class XmlToRecord implements Serializable {
         return builder.build();
     }
 
-    private void mapXmlText(final String name, final String value, boolean enforceString, Record.Builder builder) {
+    private void mapXmlText(final String name, final String value, Record.Builder builder) {
         // For text nodes
         System.out.println("mapXml text");
 
                 System.out.println("Node name: " + name);
                 System.out.println("Node text content: " + value);
 
-                if(enforceString) {
+                if(this.enforceNumberAsString) {
                     builder.withString(name, value);
                 } else {
                     try {

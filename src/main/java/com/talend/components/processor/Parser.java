@@ -43,8 +43,8 @@ public class Parser implements Serializable {
     private final ParserConfiguration configuration;
     private final ParserService service;
     private RecordBuilderFactory builderFactory;
-    final JsonToRecord jsonToRecord;
-    final XmlToRecord xmlToRecord;
+    private JsonToRecord jsonToRecord;
+    private XmlToRecord xmlToRecord;
     private String field;
     private Format format;
 
@@ -54,8 +54,7 @@ public class Parser implements Serializable {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;
-        this.jsonToRecord = new JsonToRecord(builderFactory, false);
-        this.xmlToRecord = new XmlToRecord(builderFactory);
+
     }
 
     @PostConstruct
@@ -64,6 +63,17 @@ public class Parser implements Serializable {
         field = this.configuration.getField();
         field = (field.startsWith(".") ? field.substring(1) : field);
         format = this.configuration.getFormat();
+
+        switch (format) {
+            case JSON:
+                jsonToRecord = new JsonToRecord(builderFactory, this.configuration.isEnforceNumbersAsDouble());
+                break;
+            case XML:
+                xmlToRecord = new XmlToRecord(builderFactory);
+                break;
+        }
+
+
 
     }
 
@@ -92,9 +102,8 @@ public class Parser implements Serializable {
                                 JsonObject jsonObjectRead = jsonReader.readObject();
                                 jsonReader.close();
 
-                                builder.withRecord(
-                                        entry.getName(),
-                                        jsonToRecord.toRecord(jsonObjectRead));
+                                builder.withRecord(entry.getName(),
+                                        jsonToRecord.toRecord(jsonObjectRead, this.configuration.isEnforceNumbersAsDouble()));                                    );
                                 } catch (Exception e) {
                                     throw new ParserRuntimeException("JSON Parsing failed: " + e.getMessage());
                                 }
@@ -107,7 +116,9 @@ public class Parser implements Serializable {
                                     Xmlbuilder = factory.newDocumentBuilder();
                                     Document document = Xmlbuilder.parse(new InputSource(fieldReader));
                                     document.getDocumentElement().normalize();
-                                    builder.withRecord(entry.getName(), xmlToRecord.toRecord(document, this.configuration.isEnforceString()));
+                                    builder.withRecord(entry.getName(),
+                                            xmlToRecord.toRecord(document,
+                                            this.configuration.isEnforceNumbersAsString()));
 
                                 } catch (Exception e) {
                                     throw new ParserRuntimeException("XML Parsing failed: " + e.getMessage());
