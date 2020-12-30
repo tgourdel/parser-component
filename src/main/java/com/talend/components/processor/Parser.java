@@ -72,9 +72,6 @@ public class Parser implements Serializable {
                 xmlToRecord = new XmlToRecord(builderFactory);
                 break;
         }
-
-
-
     }
 
     @ElementListener
@@ -103,7 +100,7 @@ public class Parser implements Serializable {
                                 jsonReader.close();
 
                                 builder.withRecord(entry.getName(),
-                                        jsonToRecord.toRecord(jsonObjectRead, this.configuration.isEnforceNumbersAsDouble()));                                    );
+                                        jsonToRecord.toRecord(jsonObjectRead));
                                 } catch (Exception e) {
                                     throw new ParserRuntimeException("JSON Parsing failed: " + e.getMessage());
                                 }
@@ -117,8 +114,7 @@ public class Parser implements Serializable {
                                     Document document = Xmlbuilder.parse(new InputSource(fieldReader));
                                     document.getDocumentElement().normalize();
                                     builder.withRecord(entry.getName(),
-                                            xmlToRecord.toRecord(document,
-                                            this.configuration.isEnforceNumbersAsString()));
+                                            xmlToRecord.toRecord(document));
 
                                 } catch (Exception e) {
                                     throw new ParserRuntimeException("XML Parsing failed: " + e.getMessage());
