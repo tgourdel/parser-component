@@ -17,7 +17,23 @@ ___
 
 ## Description
 
-Simple JSON and XML parser component for Talend Pipeline Designer.
+JSON and XML parser component for Talend Pipeline Designer.
 
- - For now only JSON is supported.
- - XML is WIP
+ - JSON
+ - XML (attributes & cdata not supported yet)
+ 
+ ## Configuration
+ 
+ | Option   | Description                    |
+ |--------  |--------------------------------|
+ | Simple   |   Simple parsing               |
+ | Advanced |   Gives ability to tweak how to parse numbers   |
+ 
+ ## ToDo
+ 
+ 
+ 
+ 
+
+ 
+ 

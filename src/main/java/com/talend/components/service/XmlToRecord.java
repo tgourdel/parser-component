@@ -55,18 +55,14 @@ public class XmlToRecord implements Serializable {
 
         // Only one child
         if(childNodesSize == 1) {
-            System.out.println("only one child");
+            // System.out.println("only one child");
             Node onlyChild = childNodes.get(0);
-            System.out.println("only one child 2");
-            System.out.println("Node type: " + onlyChild.getFirstChild().getNodeType());
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
-                System.out.println("Only child is text -> mapXmlText");
                 mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(), builder);
             } else if (onlyChild.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE) {
                 builder.withString(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent());
             }
             else {
-                System.out.println("not text child so build record");
                 builder.withRecord(onlyChild.getNodeName(), toRecord(onlyChild));
             }
         }
@@ -92,7 +88,7 @@ public class XmlToRecord implements Serializable {
                 }
 
                 if(it == 1) {
-                    System.out.println(n.getNodeName() + " is unique");
+                    // System.out.println(n.getNodeName() + " is unique");
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                         mapXmlText(n.getNodeName(), n.getFirstChild().getTextContent(), builder);
                     }
@@ -100,10 +96,9 @@ public class XmlToRecord implements Serializable {
                         builder.withRecord(n.getNodeName(), toRecord(n));
 
                 } else {
-                    System.out.println(n.getNodeName() + " isn't unique");
+                    // System.out.println(n.getNodeName() + " isn't unique");
                     isArray = true;
                     arrayName = n.getNodeName();
-                    System.out.println("Add record to array");
 
                     if(n.getFirstChild().getNodeType() == Node.TEXT_NODE)
                         stringArray.add(n.getTextContent());
@@ -115,13 +110,13 @@ public class XmlToRecord implements Serializable {
             if(isArray) {
 
                 if(nodeArray.size() > 0) {
-                    System.out.println("isArray is true: build with array");
+                    // System.out.println("isArray is true: build with array");
                     builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
                             .withElementSchema(nodeArray.get(0).getSchema()).build(), nodeArray);
                 }
 
                 if(stringArray.size() > 0) {
-                    System.out.println("isArray is true: build with array");
+                    // System.out.println("isArray is true: build with string array");
                     builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
                             .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build()).build(), stringArray);
                 }
@@ -134,10 +129,6 @@ public class XmlToRecord implements Serializable {
 
     private void mapXmlText(final String name, final String value, Record.Builder builder) {
         // For text nodes
-        System.out.println("mapXml text");
-
-                System.out.println("Node name: " + name);
-                System.out.println("Node text content: " + value);
 
                 if(this.enforceNumberAsString) {
                     builder.withString(name, value);
@@ -145,55 +136,16 @@ public class XmlToRecord implements Serializable {
                     try {
                         Number number = NumberFormat.getInstance().parse(value);
                         if(Double.class.isInstance(number)){
-                            System.out.println("Double");
                             builder.withDouble(name, number.doubleValue());
                         }
                         if (Long.class.isInstance(number)) {
-                            System.out.println("Long");
                             builder.withLong(name, number.longValue());
                         }
                     } catch (ParseException e) {
-                        System.out.println("Parse not number : " + e);
-                        System.out.println("build with string");
                         builder.withString(name, value);
                     }
                 }
     }
-
-
-    /**
-        private Schema getArrayElementSchema(final RecordBuilderFactory factory, final List<Object> items) {
-            if (items.isEmpty()) {
-                return factory.newSchemaBuilder(Schema.Type.STRING).build();
-            }
-            final Schema firstSchema = toSchema(items.get(0));
-            if (firstSchema.getType() == Schema.Type.RECORD) {
-                // This code merges schema of all record of the array [{aaa, bbb}, {aaa, ccc}] => {aaa, bbb, ccc}
-                return items.stream().skip(1).map(this::toSchema).reduce(firstSchema, (Schema s1, Schema s2) -> {
-                    if (s1 == null) {
-                        return s2;
-                    }
-                    if (s2 == null) { // unlikely
-                        return s1;
-                    }
-                    final List<Schema.Entry> entries1 = s1.getEntries();
-                    final List<Schema.Entry> entries2 = s2.getEntries();
-                    final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
-                    final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
-                    if (!names1.equals(names2)) {
-                        // here we are not good since values will not be right anymore,
-                        // forbidden for current version anyway but potentially supported later
-                        final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
-                        entries1.forEach(builder::withEntry);
-                        entries2.stream().filter(it -> !names1.contains(it.getName())).forEach(builder::withEntry);
-                        return builder.build();
-                    }
-                    return s1;
-                });
-            } else {
-                return firstSchema;
-            }
-        }*/
 
     public List<Node> asList(NodeList n) {
         return n.getLength()==0?
