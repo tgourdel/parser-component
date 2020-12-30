@@ -50,6 +50,7 @@ public class XmlToRecord implements Serializable {
         if(childNodesSize == 1) {
             System.out.println("only one child");
             Node onlyChild = childNodes.get(0);
+            System.out.println("only one child 2");
             if(onlyChild.getFirstChild().getNodeType() == Node.TEXT_NODE) {
                 System.out.println("Only child is text -> mapXmlText");
                 mapXmlText(onlyChild.getNodeName(), onlyChild.getFirstChild().getTextContent(),enforceString, builder);
