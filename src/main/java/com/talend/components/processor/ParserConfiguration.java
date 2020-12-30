@@ -25,7 +25,7 @@ import static com.talend.components.service.ParserService.INCOMING_PATHS_DYNAMIC
         @GridLayout.Row({ "format"}),
         @GridLayout.Row({ "field"}),
         @GridLayout.Row({ "enforceNumbersAsDouble"}),
-        @GridLayout.Row({ "enforceNumberAsString"})
+        @GridLayout.Row({ "enforceNumbersAsString"})
 })
 @Documentation("JSON or XML parser on input fields.")
 public class ParserConfiguration implements Serializable {
