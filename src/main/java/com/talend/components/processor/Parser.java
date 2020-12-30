@@ -69,7 +69,7 @@ public class Parser implements Serializable {
                 jsonToRecord = new JsonToRecord(builderFactory, this.configuration.isEnforceNumbersAsDouble());
                 break;
             case XML:
-                xmlToRecord = new XmlToRecord(builderFactory);
+                xmlToRecord = new XmlToRecord(builderFactory, this.configuration.isEnforceNumbersAsString());
                 break;
         }
     }
