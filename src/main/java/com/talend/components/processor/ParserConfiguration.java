@@ -1,5 +1,7 @@
 package com.talend.components.processor;
 
+import static org.talend.sdk.component.api.configuration.condition.ActiveIfs.Operator.AND;
+
 import com.talend.components.service.Format;
 import lombok.Data;
 import org.talend.sdk.component.api.configuration.Option;
@@ -21,7 +23,8 @@ import static com.talend.components.service.ParserService.INCOMING_PATHS_DYNAMIC
 @GridLayout({
         @GridLayout.Row({ "selectionMode"}),
         @GridLayout.Row({ "format"}),
-        @GridLayout.Row({ "field"})
+        @GridLayout.Row({ "field"}),
+        @GridLayout.Row({ "enforceString"})
 })
 @Documentation("JSON or XML parser on input fields.")
 public class ParserConfiguration implements Serializable {
@@ -48,9 +51,18 @@ public class ParserConfiguration implements Serializable {
     @Option
     @Required
     @DefaultValue("false")
-    @ActiveIf(target = "selectionMode", value = "ADVANCED")
+    @ActiveIfs(operator = AND, value = { @ActiveIf(target = "selectionMode", value = "ADVANCED"),
+            @ActiveIf(target = "format", value = "XML") })
     @Documentation("Enforce String")
     private boolean enforceString = false;
+
+    @Option
+    @Required
+    @DefaultValue("false")
+    @ActiveIfs(operator = AND, value = { @ActiveIf(target = "selectionMode", value = "ADVANCED"),
+            @ActiveIf(target = "format", value = "JSON") })
+    @Documentation("Force number as double")
+    private boolean forceDouble = false;
 
     public enum SelectionMode {
         SIMPLE,
