@@ -69,6 +69,7 @@ public class XmlToRecord implements Serializable {
             boolean isArray = false;
             String arrayName = null;
             ArrayList<Record> nodeArray = new ArrayList<Record>();
+            ArrayList<String> stringArray = new ArrayList<String>();
 
             for(Node n: childNodes) {
 
@@ -93,14 +94,29 @@ public class XmlToRecord implements Serializable {
                     isArray = true;
                     arrayName = n.getNodeName();
                     System.out.println("Add record to array");
-                    nodeArray.add(toRecord(n, enforceString));
+
+                    if(n.getFirstChild().getNodeType() == Node.TEXT_NODE)
+                        stringArray.add(n.getTextContent());
+                    else
+                        nodeArray.add(toRecord(n, enforceString));
                 }
             }
 
             if(isArray) {
-                System.out.println("isArray is true: build with array");
-                builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
-                        .withElementSchema(nodeArray.get(0).getSchema()).build(), nodeArray);
+
+                if(nodeArray.size() > 0) {
+                    System.out.println("isArray is true: build with array");
+                    builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
+                            .withElementSchema(nodeArray.get(0).getSchema()).build(), nodeArray);
+                }
+
+                if(stringArray.size() > 0) {
+                    System.out.println("isArray is true: build with array");
+                    builder.withArray(factory.newEntryBuilder().withName(arrayName).withType(Schema.Type.ARRAY)
+                            .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build()).build(), stringArray);
+                }
+
+
             }
         }
         return builder.build();
